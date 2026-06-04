@@ -44,6 +44,10 @@ h1 {
     background: #22c55e;
 }
 
+.food {
+    background: #ef4444;
+}
+
 button {
     padding: 12px 24px;
     border: none;

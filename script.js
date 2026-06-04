@@ -3,21 +3,42 @@ const startBtn = document.getElementById("startBtn");
 const gameBoard = document.getElementById("gameBoard");
 
 let snake = [ { x: 10, y: 10} ];
+
+let food = {
+    x: 5, y: 5 
+};
+
 let direction = "right";
 let gameStarted = false;
+let currentScore = 0;
 
-function drawSnake() {
+function createFood() {
+
+    food = { x: Math.floor(Math.random() * 20) + 1,
+             y: Math.floor(Math.random() * 20) + 1
+    };
+}
+
+function drawGame() {
 
     gameBoard.innerHTML = "";
 
     snake.forEach(part => {
         const snakePart = document.createElement("div");
-
         snakePart.classList.add("snake");
+
         snakePart.style.gridColumnStart = part.x;
         snakePart.style.gridRowStart = part.y;
         gameBoard.appendChild(snakePart);
     });
+
+    const foodElement = document.createElement("div");
+    foodElement.classList.add("food");
+
+    foodElement.style.gridColumnStart = food.x;
+    foodElement.style.gridRowStart = food.y;
+
+    gameBoard.appendChild(foodElement);
 }
 
 function moveSnake() {
@@ -41,14 +62,24 @@ function moveSnake() {
     }
 
     snake.unshift(head);
-    snake.pop();
+    
+    if(head.x === food.x && head.y === food.y) {
 
-    drawSnake();
+        currentScore++;
+        score.textContent = currentScore;
+        createFood();
+    }
+
+    else{
+        snake.pop();
+    }
+
+    drawGame();
 }
 
 function startGame() {
 
-    drawSnake();
+    drawGame();
 
     setInterval(() => {
         moveSnake();
