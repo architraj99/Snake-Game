@@ -41,7 +41,32 @@ h1 {
 
 .snake {
     background: #22c55e;
-    border-radius: 3px;
+    border-radius: 8px;
+}
+
+.snake-head {
+    background: #16a34a;
+    border-radius: 50%;
+    position: relative;
+}
+
+.snake-head::before,
+.snake-head::after {
+    content: "";
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: white;
+    border-radius: 50%;
+    top: 4px;
+}
+
+.snake-head::before {
+    left: 4px;
+}
+
+.snake-head::after {
+    right: 4px;
 }
 
 .food {
