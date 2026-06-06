@@ -1,13 +1,14 @@
 const score = document.getElementById("score");
+const highScore = document.getElementById("highScore");
 const startBtn = document.getElementById("startBtn");
-const gameBoard = document.getElementById("gameBoard");
 const restartBtn = document.getElementById("restartBtn");
 const statusText = document.getElementById("status");
+const gameBoard = document.getElementById("gameBoard");
 
 let snake = [ { x: 10, y: 10} ];
 
 let food = {
-    x: 5, y: 5 
+    x: 5, y: 5
 };
 
 let direction = "right";
@@ -15,11 +16,16 @@ let gameStarted = false;
 let gameOver = false;
 let currentScore = 0;
 let gameLoop;
+let speed = 200;
+
+let bestScore = localStorage.getItem("snakeHighScore") || 0;
+highScore.textContent = bestScore;
 
 function createFood() {
 
-    food = { x: Math.floor(Math.random() * 20) + 1,
-             y: Math.floor(Math.random() * 20) + 1
+    food = {
+        x: Math.floor(Math.random() * 20) + 1,
+        y: Math.floor(Math.random() * 20) + 1
     };
 }
 
@@ -53,7 +59,7 @@ function checkCollision(head) {
 
     for(let i = 1; i < snake.length; i++) {
 
-        if(head.x === snake[i].x && head.y === snake[i].y) {
+        if (head.x === snake[i].x && head.y === snake[i].y) {
             return true;
         }
     }
@@ -66,45 +72,61 @@ function endGame() {
 
     gameOver = true;
     clearInterval(gameLoop);
+
+    if (currentScore > bestScore) {
+        bestScore = currentScore;
+
+        localStorage.setItem(
+            "snakeHighScore",
+            bestScore
+        );
+
+        highScore.textContent = bestScore;
+    }
+
     statusText.textContent = "Game Over";
+}
+
+function updateSpeed() {
+
+    clearInterval(gameLoop);
+
+    speed = Math.max(80, 200 - currentScore * 5);
+
+    gameLoop = setInterval(() => {
+        moveSnake();
+    }, speed);
 }
 
 function moveSnake() {
 
     const head = { ...snake[0] };
 
-    if(direction === "right") {
-        head.x++;
-    }
+    if (direction === "right") head.x++;
 
-    if(direction === "left") {
-        head.x--;
-    }
+    if (direction === "left") head.x--;
 
-    if(direction === "up") {
-        head.y--;
-    }
+    if (direction === "up") head.y--;
 
-    if(direction === "down") {
-        head.y++;
-    }
+    if (direction === "down") head.y++;
 
-    if(checkCollision(head) ) {
+    if (checkCollision(head)) {
 
         endGame();
         return;
     }
 
     snake.unshift(head);
-    
-    if(head.x === food.x && head.y === food.y) {
+
+    if (head.x === food.x && head.y === food.y) {
 
         currentScore++;
         score.textContent = currentScore;
         createFood();
-    }
-
-    else{
+        updateSpeed();
+    } 
+    
+    else {
         snake.pop();
     }
 
@@ -115,55 +137,48 @@ function startGame() {
 
     drawGame();
 
-   gameLoop =  setInterval(() => {
-    
-    moveSnake();
-    }, 200);
+    gameLoop = setInterval(() => {
 
+        moveSnake();
+    }, speed);
 }
 
 function restartGame() {
 
     clearInterval(gameLoop);
 
-    snake = [ { x: 10, y:10 }];
-    food = [ {x: 5, y:5} ];
+    snake = [ { x: 10, y: 10 } ];
+
+    food = { x: 5, y: 5 };
 
     direction = "right";
     gameStarted = false;
     gameOver = false;
     currentScore = 0;
+    speed = 200;
 
     score.textContent = 0;
     statusText.textContent = "";
 
     drawGame();
     startBtn.textContent = "Start Game";
-
 }
 
 document.addEventListener("keydown", event => {
 
-    if(event.key === "ArrowUp") {
-        direction = "up";
-    }
+    if (event.key === "ArrowUp") direction = "up";
 
-    if(event.key === "ArrowDown") {
-        direction = "down";
-    }
+    if (event.key === "ArrowDown") direction = "down";
 
-    if(event.key === "ArrowLeft") {
-        direction = "left";
-    }
+    if (event.key === "ArrowLeft") direction = "left";
 
-    if(event.key === "ArrowRight") {
-        direction = "right";
-    }
+    if (event.key === "ArrowRight") direction = "right";
+
 });
 
 startBtn.addEventListener("click", () => {
 
-    if(gameStarted) {
+    if (gameStarted) {
         return;
     }
 
@@ -171,8 +186,8 @@ startBtn.addEventListener("click", () => {
     startBtn.textContent = "Game Running";
 
     startGame();
-}); 
+});
 
 restartBtn.addEventListener("click", () => {
     restartGame();
-});
+}); 
