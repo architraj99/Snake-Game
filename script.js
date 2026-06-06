@@ -5,10 +5,15 @@ const restartBtn = document.getElementById("restartBtn");
 const statusText = document.getElementById("status");
 const gameBoard = document.getElementById("gameBoard");
 
-let snake = [ { x: 10, y: 10} ];
+let snake = [
+    { x: 10, y: 10 },
+    { x: 9, y: 10 },
+    { x: 8, y: 10 }
+];
 
 let food = {
-    x: 5, y: 5
+    x: 5,
+    y: 5
 };
 
 let direction = "right";
@@ -22,7 +27,6 @@ let bestScore = localStorage.getItem("snakeHighScore") || 0;
 highScore.textContent = bestScore;
 
 function createFood() {
-
     food = {
         x: Math.floor(Math.random() * 20) + 1,
         y: Math.floor(Math.random() * 20) + 1
@@ -30,19 +34,25 @@ function createFood() {
 }
 
 function drawGame() {
-
     gameBoard.innerHTML = "";
 
-    snake.forEach(part => {
+    snake.forEach((part, index) => {
         const snakePart = document.createElement("div");
-        snakePart.classList.add("snake");
+
+        if (index === 0) {
+            snakePart.classList.add("snake-head");
+        } else {
+            snakePart.classList.add("snake");
+        }
 
         snakePart.style.gridColumnStart = part.x;
         snakePart.style.gridRowStart = part.y;
+
         gameBoard.appendChild(snakePart);
     });
 
     const foodElement = document.createElement("div");
+
     foodElement.classList.add("food");
 
     foodElement.style.gridColumnStart = food.x;
@@ -52,25 +62,25 @@ function drawGame() {
 }
 
 function checkCollision(head) {
-
-    if(head.x < 1 || head.x > 20 || head.y < 1 || head.y > 20) {
+    if (head.x < 1 || head.x > 20 || head.y < 1 || head.y > 20) {
         return true;
     }
 
-    for(let i = 1; i < snake.length; i++) {
-
-        if (head.x === snake[i].x && head.y === snake[i].y) {
+    for (let i = 1; i < snake.length; i++) {
+        if (
+            head.x === snake[i].x &&
+            head.y === snake[i].y
+        ) {
             return true;
         }
     }
 
     return false;
-
 }
 
 function endGame() {
-
     gameOver = true;
+
     clearInterval(gameLoop);
 
     if (currentScore > bestScore) {
@@ -88,7 +98,6 @@ function endGame() {
 }
 
 function updateSpeed() {
-
     clearInterval(gameLoop);
 
     speed = Math.max(80, 200 - currentScore * 5);
@@ -99,19 +108,14 @@ function updateSpeed() {
 }
 
 function moveSnake() {
-
     const head = { ...snake[0] };
 
     if (direction === "right") head.x++;
-
     if (direction === "left") head.x--;
-
     if (direction === "up") head.y--;
-
     if (direction === "down") head.y++;
 
     if (checkCollision(head)) {
-
         endGame();
         return;
     }
@@ -119,14 +123,14 @@ function moveSnake() {
     snake.unshift(head);
 
     if (head.x === food.x && head.y === food.y) {
-
         currentScore++;
+
         score.textContent = currentScore;
+
         createFood();
+
         updateSpeed();
-    } 
-    
-    else {
+    } else {
         snake.pop();
     }
 
@@ -134,22 +138,26 @@ function moveSnake() {
 }
 
 function startGame() {
-
     drawGame();
 
     gameLoop = setInterval(() => {
-
         moveSnake();
     }, speed);
 }
 
 function restartGame() {
-
     clearInterval(gameLoop);
 
-    snake = [ { x: 10, y: 10 } ];
+    snake = [
+        { x: 10, y: 10 },
+        { x: 9, y: 10 },
+        { x: 8, y: 10 }
+    ];
 
-    food = { x: 5, y: 5 };
+    food = {
+        x: 5,
+        y: 5
+    };
 
     direction = "right";
     gameStarted = false;
@@ -161,28 +169,35 @@ function restartGame() {
     statusText.textContent = "";
 
     drawGame();
+
     startBtn.textContent = "Start Game";
 }
 
 document.addEventListener("keydown", event => {
+    if (event.key === "ArrowUp" && direction !== "down") {
+        direction = "up";
+    }
 
-    if (event.key === "ArrowUp") direction = "up";
+    if (event.key === "ArrowDown" && direction !== "up") {
+        direction = "down";
+    }
 
-    if (event.key === "ArrowDown") direction = "down";
+    if (event.key === "ArrowLeft" && direction !== "right") {
+        direction = "left";
+    }
 
-    if (event.key === "ArrowLeft") direction = "left";
-
-    if (event.key === "ArrowRight") direction = "right";
-
+    if (event.key === "ArrowRight" && direction !== "left") {
+        direction = "right";
+    }
 });
 
 startBtn.addEventListener("click", () => {
-
     if (gameStarted) {
         return;
     }
 
     gameStarted = true;
+
     startBtn.textContent = "Game Running";
 
     startGame();
@@ -190,4 +205,6 @@ startBtn.addEventListener("click", () => {
 
 restartBtn.addEventListener("click", () => {
     restartGame();
-}); 
+});
+
+drawGame();
