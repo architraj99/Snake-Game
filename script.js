@@ -1,6 +1,8 @@
 const score = document.getElementById("score");
 const startBtn = document.getElementById("startBtn");
 const gameBoard = document.getElementById("gameBoard");
+const restartBtn = document.getElementById("restartBtn");
+const statusText = document.getElementById("status");
 
 let snake = [ { x: 10, y: 10} ];
 
@@ -10,7 +12,9 @@ let food = {
 
 let direction = "right";
 let gameStarted = false;
+let gameOver = false;
 let currentScore = 0;
+let gameLoop;
 
 function createFood() {
 
@@ -41,6 +45,30 @@ function drawGame() {
     gameBoard.appendChild(foodElement);
 }
 
+function checkCollision(head) {
+
+    if(head.x < 1 || head.x > 20 || head.y < 1 || head.y > 20) {
+        return true;
+    }
+
+    for(let i = 1; i < snake.length; i++) {
+
+        if(head.x === snake[i].x && head.y === snake[i].y) {
+            return true;
+        }
+    }
+
+    return false;
+
+}
+
+function endGame() {
+
+    gameOver = true;
+    clearInterval(gameLoop);
+    statusText.textContent = "Game Over";
+}
+
 function moveSnake() {
 
     const head = { ...snake[0] };
@@ -59,6 +87,12 @@ function moveSnake() {
 
     if(direction === "down") {
         head.y++;
+    }
+
+    if(checkCollision(head) ) {
+
+        endGame();
+        return;
     }
 
     snake.unshift(head);
@@ -81,9 +115,31 @@ function startGame() {
 
     drawGame();
 
-    setInterval(() => {
-        moveSnake();
+   gameLoop =  setInterval(() => {
+    
+    moveSnake();
     }, 200);
+
+}
+
+function restartGame() {
+
+    clearInterval(gameLoop);
+
+    snake = [ { x: 10, y:10 }];
+    food = [ {x: 5, y:5} ];
+
+    direction = "right";
+    gameStarted = false;
+    gameOver = false;
+    currentScore = 0;
+
+    score.textContent = 0;
+    statusText.textContent = "";
+
+    drawGame();
+    startBtn.textContent = "Start Game";
+
 }
 
 document.addEventListener("keydown", event => {
@@ -116,3 +172,7 @@ startBtn.addEventListener("click", () => {
 
     startGame();
 }); 
+
+restartBtn.addEventListener("click", () => {
+    restartGame();
+});
